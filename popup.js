@@ -17,6 +17,9 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
   if (!url) {
     return;
   }
+  if (url.startsWith('chrome')) {
+    return;
+  }
 
 
   let title = tab.title;
