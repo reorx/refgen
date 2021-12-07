@@ -4,6 +4,13 @@ const getSelection = function() {
   return sel;
 }
 
+const elRef = document.querySelector('#d-ref')
+
+document.querySelector('#a-copy').addEventListener('click', () => {
+  elRef.select();
+  document.execCommand('copy');
+});
+
 chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
   const tab = tabs[0];
   const url = tab.url || tab.pendingUrl;
@@ -11,11 +18,12 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
     return;
   }
 
+
   let title = tab.title;
 
   const getRef = function() {
     const ref = `[${title}](${url})`;
-    document.querySelector('#d-ref').value = ref;
+    elRef.value = ref;
   }
 
   // promise
@@ -33,5 +41,6 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
 
       // continue logic
       getRef();
+      elRef.select();
     });
 });
