@@ -1,0 +1,35 @@
+{
+  "name": "Refgen",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Ctrl+Command+K"
+      }
+    },
+    "test": {
+      "suggested_key": {
+        "default": "Ctrl+U",
+        "mac": "Ctrl+Command+U"
+      },
+      "description": "Toggle feature foo",
+      "global": true
+    }
+  },
+  "permissions": [
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+      "*://*/*",
+      "<all_urls>"
+  ]
+}
