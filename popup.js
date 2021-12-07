@@ -1,6 +1,5 @@
 const getSelection = function() {
   const sel = window.getSelection().toString();
-  console.log('get selection', sel);
   return sel;
 }
 
@@ -22,7 +21,7 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
   }
 
 
-  let title = tab.title;
+  let title = tab.title.trim();
 
   const getRef = function() {
     const ref = `[${title}](${url})`;
@@ -37,9 +36,9 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
     },
     (results) => {
       // console.log('results', results);
-      const sel = results[0].result
-      if (sel) {
-        title = sel;
+      const text = results[0].result.trim()
+      if (text) {
+        title = text;
       }
 
       // continue logic
