@@ -1,9 +1,14 @@
 {
   "name": "Refgen",
-  "version": "1.0",
+  "version": "1.0.0",
   "manifest_version": 3,
   "description": "Generate referrer for current page.",
   "author": "Reorx <novoreorx@gmail.com>",
+  "icons": {
+    "16": "logo-947.png",
+    "48": "logo-947.png",
+    "128": "logo-947.png"
+  },
   "background": {
     "service_worker": "background.js"
   },
@@ -14,16 +19,8 @@
     "_execute_action": {
       "suggested_key": {
         "default": "Ctrl+K",
-        "mac": "Ctrl+Command+K"
+        "mac": "Command+K"
       }
-    },
-    "test": {
-      "suggested_key": {
-        "default": "Ctrl+U",
-        "mac": "Ctrl+Command+U"
-      },
-      "description": "Toggle feature foo",
-      "global": true
     }
   },
   "permissions": [
