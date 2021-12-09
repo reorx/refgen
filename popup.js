@@ -16,33 +16,42 @@ chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
   if (!url) {
     return;
   }
+  // ignore chrome internal urls (chrome://...)
   if (url.startsWith('chrome')) {
     return;
   }
-
 
   let title = tab.title.trim();
 
   const getRef = function() {
     const ref = `[${title}](${url})`;
     elRef.value = ref;
+    elRef.select();
   }
 
-  // promise
-  chrome.scripting.executeScript(
-    {
-      target: {tabId: tab.id},
-      func: getSelection,
-    },
-    (results) => {
-      // console.log('results', results);
-      const text = results[0].result.trim()
-      if (text) {
-        title = text;
-      }
+  let canGetSelection = true;
+  if (url.startsWith('https://chrome.google.com/webstore')) {
+    canGetSelection = false;
+  }
 
-      // continue logic
+  if (canGetSelection) {
+    // promise
+    chrome.scripting.executeScript(
+      {
+        target: {tabId: tab.id},
+        func: getSelection,
+      },
+      (results) => {
+        // console.log('results', results);
+        const text = results[0].result.trim()
+        if (text) {
+          title = text;
+        }
+
+        // continue logic
+        getRef();
+      });
+    } else {
       getRef();
-      elRef.select();
-    });
+    }
 });
