@@ -12,10 +12,21 @@ class App {
     }
 
     this.elCopyBtn = QS('#f-copy')
-    this.elCopyBtn.addEventListener('click', () => {this.onCopyClick()});
+    this.elCopyBtn.addEventListener('click', () => {
+      this.copyContent()
+    });
 
     this.elCopyHTMLBtn = QS("#f-copy-html")
-    this.elCopyHTMLBtn.addEventListener("click", () => {this.onCopyHTMLClick()});
+    this.elCopyHTMLBtn.addEventListener("click", () => {
+      this.copyContentAsHTML()
+    });
+
+    this.elContent.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.metaKey && e.key === "c") {
+        this.copyContentAsHTML()
+        this.elCopyHTMLBtn.focus()
+      }
+    });
   }
 
   handleTab(tab) {
@@ -63,12 +74,12 @@ class App {
     this.elContent.select();
   }
 
-  onCopyClick() {
+  copyContent() {
     this.elContent.select();
     document.execCommand('copy');
   }
 
-  onCopyHTMLClick() {
+  copyContentAsHTML() {
     const mark = wrapMarkForEl(createLink(this.data.title, this.data.url));
     document.body.appendChild(mark);
     copyEl(mark);
