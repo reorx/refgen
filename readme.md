@@ -9,5 +9,5 @@ Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ce
 
 ## TODO
 
-- [ ] Copy as HTML
+- [x] Copy as HTML
 - [ ] Support other markup formats

@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <style>
+    select,
+    button {
+      margin-right: .5em;
+    }
+  </style>
 </head>
 <body>
-  <textarea id="d-ref" name="" cols="30" rows="10"></textarea>
+  <textarea id="d-content" name="" cols="35" rows="10"></textarea>
 
   <select id="d-format" name="format">
     <option value="">Markdown</option>
   </select>
   <label for="d-format"></label>
 
-  <button id="a-copy">Copy</button>
+  <button id="f-copy">Copy</button>
+  <button id="f-copy-html">Copy as HTML</button>
 
+  <!-- Don't know why, but this div can prevent copied html starts with a LF -->
+  <div></div>
   <script src="popup.js"></script>
 </body>
 </html>
