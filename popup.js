@@ -1,4 +1,8 @@
 const QS = document.querySelector.bind(document)
+const QSA = document.querySelectorAll.bind(document)
+const S_KEY = {
+  defaultFormat: "defaultFormat",
+}
 
 
 /* Class definition */
@@ -9,21 +13,9 @@ class App {
       title: null,
       url: null,
     }
+    this.settings = {}
 
-    this.elFormat = QS('#d-format')
-    this.elFormat.addEventListener('change', () => {
-      this.render()
-    })
-
-    this.elCopyBtn = QS('#f-copy')
-    this.elCopyBtn.addEventListener('click', () => {
-      this.copyContent()
-    });
-
-    this.elCopyHTMLBtn = QS("#f-copy-html")
-    this.elCopyHTMLBtn.addEventListener("click", () => {
-      this.copyContentAsHTML()
-    });
+    /* Main pane */
 
     this.elContent = QS('#d-content')
     this.elContent.addEventListener("keydown", (e) => {
@@ -40,7 +32,60 @@ class App {
       this.renderPreview()
     });
 
-    this.elPreview = QS('#v-preview')
+    /* Action pane */
+
+    this.elFormat = QS('#d-format')
+    this.elFormat.addEventListener('change', () => {
+      this.render()
+    })
+
+    this.elCopyBtn = QS('#f-copy')
+    this.elCopyBtn.addEventListener('click', () => {
+      this.copyContent()
+    });
+
+    this.elCopyHTMLBtn = QS("#f-copy-html")
+    this.elCopyHTMLBtn.addEventListener('click', () => {
+      this.copyContentAsHTML()
+    });
+
+    /* Settings pane */
+
+    // when click #f-settings, toggle #settings-pane display
+    QS('#f-settings').addEventListener('click', () => {
+      const el = QS('#settings-pane')
+      console.log('click #f-settings', el.style.display)
+      if (el.offsetParent === null) {
+        el.style.display = 'block'
+      } else {
+        el.style.display = 'none'
+      }
+    })
+
+    QSA('input[name="default-format"]').forEach(el => {
+      el.addEventListener('change', (e) => {
+        console.log('change input default-format', e)
+        const defaultFormat = e.target.value
+        this.elFormat.value = defaultFormat
+        // dispatch change event on elFormat
+        this.elFormat.dispatchEvent(new Event('change'))
+
+        // save settings
+        const d = {}
+        d[S_KEY.defaultFormat] = defaultFormat
+        this.saveSettings(d).then(() => {
+          console.log('saveSettings done')
+        })
+      })
+    })
+
+    /* Preview pane */
+
+    this.elPreview = QS('#preview-pane')
+  }
+
+  getDefaultFormat() {
+    return QS('input[name="default-format":checked]').value
   }
 
   getFormat() {
@@ -151,6 +196,44 @@ class App {
       this.elPreview.innerHTML = '<span class="error">Invaild link</span>'
     }
   }
+
+  renderFormat() {
+    const v = this.settings[S_KEY.defaultFormat]
+    if (v) {
+      this.elFormat.value = v
+    }
+  }
+
+  renderSettings() {
+    const defaultFormat = this.settings[S_KEY.defaultFormat]
+    if (defaultFormat) {
+      QS('input[name="default-format"][value="' + defaultFormat + '"]').checked = true
+    }
+  }
+
+  loadSettings() {
+    const self = this
+    return chrome.storage.sync.get(['settings']).then((data) => {
+      console.log('loadSettings', data)
+      if (data.settings) {
+        self.settings = data.settings
+      }
+      self.renderFormat()
+      self.renderSettings()
+    })
+  }
+
+  saveSettings(data) {
+    // loop key value in data
+    for (const key in data) {
+      this.settings[key] = data[key]
+    }
+    console.log('save settings', this.settings)
+
+    return chrome.storage.sync.set({
+      settings: this.settings,
+    })
+  }
 }
 
 
@@ -158,10 +241,12 @@ class App {
 
 const app = new App()
 
-chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-  const tab = tabs[0];
-  app.handleTab(tab)
-});
+app.loadSettings().then(() => {
+  chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+    const tab = tabs[0];
+    app.handleTab(tab)
+  });
+})
 
 
 /* Functions */

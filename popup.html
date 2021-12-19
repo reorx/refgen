@@ -6,21 +6,57 @@
   <style>
     textarea {
       padding: 5px;
-      margin-bottom: 5px;
       font-size: 13px;
     }
+
+    #action-pane {
+      display: flex;
+      padding: 5px 0 8px;
+    }
+
     select,
     button {
       margin-right: .5em;
     }
 
-    #v-preview {
-      margin-top: 10px;
-      border-top: 1px solid #aaa;
-      padding: 5px 0 0;
+    #f-settings {
+      font-size: 22px;
+      line-height: 18px;
+      margin-left: auto;
+      margin-right: 10px;
+      cursor: pointer;
     }
-    #v-preview a:visited,
-    #v-preview a {
+    #f-settings:hover {
+      color: rgb(19, 102, 203);
+    }
+
+    #settings-pane {
+      display: none;
+      border-top: 1px solid #aaa;
+      padding: 8px 0 8px;
+    }
+    .radios {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .radios input[type=radio] {
+      position: relative;
+      top: 2px;
+    }
+    .radios label {
+      font-size: 12px;
+    }
+    #settings-pane .name {
+      font-weight: bold;
+    }
+
+    #preview-pane {
+      border-top: 1px solid #aaa;
+      padding: 8px 0 3px;
+    }
+    #preview-pane a:visited,
+    #preview-pane a {
       color: #1a0dab;
     }
 
@@ -37,17 +73,38 @@
 <body>
   <textarea id="d-content" name="" cols="40" rows="10"></textarea>
 
-  <select id="d-format" name="format">
-    <option value="markdown">Markdown</option>
-    <option value="asciidoc">AsciiDoc</option>
-    <option value="rst">reStructuredText</option>
-    <option value="html">HTML</option>
-  </select>
+  <div id="action-pane">
+    <select id="d-format" name="format">
+      <option value="markdown">Markdown</option>
+      <option value="asciidoc">AsciiDoc</option>
+      <option value="rst">reStructuredText</option>
+      <option value="html">HTML</option>
+    </select>
 
-  <button id="f-copy">Copy</button>
-  <button id="f-copy-html">Copy as HTML</button>
+    <button id="f-copy">Copy</button>
+    <button id="f-copy-html">Copy as HTML</button>
+    <div id="f-settings" title="Open settings pane">⚙</div>
+  </div>
 
-  <div id="v-preview"></div>
+  <div id="settings-pane">
+      <div class="name">Default Format:</div>
+      <div class="radios">
+        <div class="radio-item">
+          <input type="radio" name="default-format" value="markdown" id="dfMarkdown" checked/><label for="dfMarkdown">Markdown</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" name="default-format" value="asciidoc" id="dfAsciidoc"/><label for="dfAsciidoc">AsciiDoc</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" name="default-format" value="rst" id="dfRST"/><label for="dfRST">reStructuredText</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" name="default-format" value="html" id="dfHTML"/><label for="dfHTML">HTML</label>
+        </div>
+      </div>
+  </div>
+
+  <div id="preview-pane"></div>
 
   <!-- Don't know why, but this div can prevent copied html starts with a LF -->
   <div></div>
