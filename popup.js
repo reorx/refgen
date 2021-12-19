@@ -101,6 +101,8 @@ class App {
         return new AsciidocFormatter()
       case 'rst':
         return new RSTFormatter()
+      case 'mediawiki':
+        return new MediaWikiFormatter()
       case 'html':
         return new HTMLFormatter()
     }
@@ -367,7 +369,7 @@ class MediaWikiFormatter {
 
   parseLink(text) {
     // regex parse [url title] from text
-    const regex = /\[([^\]]+)\s([^\]]+)\]/g;
+    const regex = /\[([^\]\s]+)\s([^\]]+)\]/g;
 
     let match = regex.exec(text);
     // if match, return first and second group
