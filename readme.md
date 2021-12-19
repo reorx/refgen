@@ -10,4 +10,8 @@ Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ce
 ## TODO
 
 - [x] Copy as HTML
-- [ ] Support other markup formats
+- [x] Support other markup formats
+  - AsciiDoc
+  - reStructuredText
+  - MediaWiki
+  - HTML

@@ -5,11 +5,15 @@ const QS = document.querySelector.bind(document)
 
 class App {
   constructor() {
-    this.elContent = QS('#d-content')
     this.data = {
       title: null,
       url: null,
     }
+
+    this.elFormat = QS('#d-format')
+    this.elFormat.addEventListener('change', () => {
+      this.render()
+    })
 
     this.elCopyBtn = QS('#f-copy')
     this.elCopyBtn.addEventListener('click', () => {
@@ -21,12 +25,40 @@ class App {
       this.copyContentAsHTML()
     });
 
+    this.elContent = QS('#d-content')
     this.elContent.addEventListener("keydown", (e) => {
+      console.log('keydown')
       if (e.ctrlKey && e.metaKey && e.key === "c") {
+        console.log('key combo: ctrl+meta+c')
         this.copyContentAsHTML()
         this.elCopyHTMLBtn.focus()
+        return
       }
     });
+    this.elContent.addEventListener("keyup", () => {
+      console.log('keyup')
+      this.renderPreview()
+    });
+
+    this.elPreview = QS('#v-preview')
+  }
+
+  getFormat() {
+    // get the option of <select> from this.elFormat
+    return this.elFormat.options[this.elFormat.selectedIndex].value
+  }
+
+  getFormatter() {
+    switch (this.getFormat()) {
+      case 'markdown':
+        return new MarkdownFormatter()
+      case 'asciidoc':
+        return new AsciidocFormatter()
+      case 'rst':
+        return new RSTFormatter()
+      case 'html':
+        return new HTMLFormatter()
+    }
   }
 
   handleTab(tab) {
@@ -61,15 +93,21 @@ class App {
             self.data.title = text;
           }
 
-          self.renderContent();
+          self.render();
         });
     } else {
-      self.renderContent();
+      self.render();
     }
   }
 
+  render() {
+    this.renderContent()
+    this.renderPreview()
+  }
+
   renderContent() {
-    const text = `[${this.data.title}](${this.data.url})`;
+    const formatter = this.getFormatter()
+    const text = formatter.renderLink(this.data.title, this.data.url)
     this.elContent.value = text;
     this.elContent.select();
   }
@@ -80,9 +118,38 @@ class App {
   }
 
   copyContentAsHTML() {
-    const mark = wrapMarkForEl(createLink(this.data.title, this.data.url));
+    const link = this.createLinkFromContent()
+    if (!link) {
+      return
+    }
+    const mark = wrapMarkForEl(link);
     document.body.appendChild(mark);
     copyEl(mark);
+  }
+
+  createLinkFromContent() {
+    const text = this.elContent.value
+    const format = this.getFormat()
+    const formatter = this.getFormatter()
+    if (format === 'html') {
+      return formatter.createLink(text)
+    } else {
+      const matched = formatter.parseLink(text)
+      // console.log('createLinkFromContent', text, matched)
+      if (matched) {
+        return createLink(matched.title, matched.url)
+      }
+    }
+  }
+
+  renderPreview() {
+    const link = this.createLinkFromContent()
+
+    if (link) {
+      this.elPreview.innerHTML = link.outerHTML
+    } else {
+      this.elPreview.innerHTML = '<span class="error">Invaild link</span>'
+    }
   }
 }
 
@@ -146,4 +213,96 @@ const copyEl = function(el) {
   selection.removeAllRanges();
   selection.addRange(range);
   document.execCommand("copy");
+}
+
+class MarkdownFormatter {
+  renderLink(title, url) {
+    return `[${title}](${url})`
+  }
+
+  parseLink(text) {
+    // regex parse [title](url) from text
+    const regex = /\[([^\]]+)\]\(([^\)]+)\)/g;
+
+    let match = regex.exec(text);
+    // if match, return first and second group
+    if (match) {
+      return {
+        title: match[1],
+        url: match[2],
+      };
+    }
+  }
+}
+
+class AsciidocFormatter {
+  renderLink(title, url) {
+    return `${url}[${title}]`
+  }
+
+  parseLink(text) {
+    // regex parse url[title] from text
+    const regex = /([^\)]+)\[([^\]]+)\]/g;
+
+    let match = regex.exec(text);
+    // if match, return first and second group
+    if (match) {
+      return {
+        title: match[2],
+        url: match[1],
+      };
+    }
+  }
+}
+
+class RSTFormatter {
+  renderLink(title, url) {
+    return `\`${title} <${url}>\`_`
+  }
+
+  parseLink(text) {
+    // regex parse `url <title>`_ from text
+    const regex = /\`([^<]+)\s<([^>]+)>\`_/g;
+
+    let match = regex.exec(text);
+    // if match, return first and second group
+    if (match) {
+      return {
+        title: match[1],
+        url: match[2],
+      };
+    }
+  }
+}
+
+class MediaWikiFormatter {
+  renderLink(title, url) {
+    return `[${url} ${title}]`
+  }
+
+  parseLink(text) {
+    // regex parse [url title] from text
+    const regex = /\[([^\]]+)\s([^\]]+)\]/g;
+
+    let match = regex.exec(text);
+    // if match, return first and second group
+    if (match) {
+      return {
+        title: match[2],
+        url: match[1],
+      };
+    }
+  }
+}
+
+class HTMLFormatter {
+  renderLink(title, url) {
+    return `<a href="${url}">${title}</a>`
+  }
+
+  createLink(text) {
+    const div = document.createElement('div')
+    div.innerHTML = text
+    return div.firstChild
+  }
 }
