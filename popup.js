@@ -3,8 +3,15 @@ const QSA = document.querySelectorAll.bind(document)
 const S_KEY = {
   defaultFormat: "defaultFormat",
 }
-
-
+const [EXTENSION_API_NAME, EXTAPI] = (function() {
+  if (typeof browser !== 'undefined') {
+    return ['webext', browser]
+  }
+  if (typeof chrome !== 'undefined') {
+    return ['chrome', chrome]
+  }
+  console.error('unsupported browser extension API')
+})()
 /* Class definition */
 
 class App {
@@ -113,38 +120,25 @@ class App {
     if (!url) {
       return;
     }
-    // ignore chrome internal urls (chrome://...)
-    if (url.startsWith('chrome')) {
+    // ignore internal urls
+    if (url.startsWith('chrome') || url.startsWith('about') || url.startsWith('moz-extension')) {
+      this.elPreview.innerText = 'internal url'
       return;
     }
     const self = this
     this.data.url = url
     this.data.title = tab.title.trim()
 
-    let canGetSelection = true;
-    if (url.startsWith('https://chrome.google.com/webstore')) {
-      canGetSelection = false;
-    }
-
-    if (canGetSelection) {
-      // promise
-      chrome.scripting.executeScript(
-        {
-          target: {tabId: tab.id},
-          func: getSelection,
-        },
-        (results) => {
-          // console.log('results', results);
-          const text = results[0].result.trim()
-          if (text) {
-            self.data.title = text;
-          }
-
-          self.render();
-        });
-    } else {
+    tryGetSelectionFromTab((results) => {
+      if (results.length !== 0) {
+        // console.log('results', results);
+        const text = results[0].result.trim()
+        if (text) {
+          self.data.title = text;
+        }
+      }
       self.render();
-    }
+    });
   }
 
   render() {
@@ -215,7 +209,7 @@ class App {
 
   loadSettings() {
     const self = this
-    return chrome.storage.sync.get(['settings']).then((data) => {
+    return EXTAPI.storage.sync.get(['settings']).then((data) => {
       console.log('loadSettings', data)
       if (data.settings) {
         self.settings = data.settings
@@ -232,7 +226,7 @@ class App {
     }
     console.log('save settings', this.settings)
 
-    return chrome.storage.sync.set({
+    return EXTAPI.storage.sync.set({
       settings: this.settings,
     })
   }
@@ -244,18 +238,33 @@ class App {
 const app = new App()
 
 app.loadSettings().then(() => {
-  chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-    const tab = tabs[0];
-    app.handleTab(tab)
-  });
+  EXTAPI.tabs.query({active: true, currentWindow: true}).then(tabs => {
+    app.handleTab(tabs[0])
+  })
 })
 
 
 /* Functions */
 
-const getSelection = function() {
-  const sel = window.getSelection().toString();
-  return sel;
+const getSelectionFromTab = function(then) {
+  let api;
+  switch (EXTENSION_API) {
+    case 'chrome':
+      api = chrome.scripting;
+      break;
+    case 'webext':
+      api = EXTAPI.tabs;
+      break;
+  }
+  api.executeScript({ code: 'window.getSelection().toString()' }).then(then)
+}
+
+const tryGetSelectionFromTab = function(then) {
+  try {
+    getSelectionFromTab(then)
+  } catch {
+    then([])
+  }
 }
 
 const wrapMarkForEl = function(el) {
@@ -393,3 +402,4 @@ class HTMLFormatter {
     return div.firstChild
   }
 }
+
