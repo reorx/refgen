@@ -3,16 +3,39 @@ const QSA = document.querySelectorAll.bind(document)
 const S_KEY = {
   defaultFormat: "defaultFormat",
 }
-const [EXTENSION_API_NAME, EXTAPI] = (function() {
-  if (typeof browser !== 'undefined') {
-    return ['webext', browser]
-  }
-  if (typeof chrome !== 'undefined') {
-    return ['chrome', chrome]
-  }
-  console.error('unsupported browser extension API')
-})()
+
 /* Class definition */
+
+class ExtensionAPI {
+	constructor() {
+		if(typeof browser !== 'undefined') {
+			this.name = 'webext'
+			this.api = browser
+		} else if(typeof chrome !== 'undefined') {
+			this.name = 'chrome'
+			this.api = chrome
+		} else {
+			throw 'unsupported browser extension API'
+		}
+	}
+
+	get storage() {
+		return this.api.storage
+	}
+
+	get tabs() {
+		return this.api.tabs
+	}
+
+	executeScript(...args) {
+		switch(this.name) {
+			case 'webext':
+				return this.api.tabs.executeScript(...args)
+			case 'chrome':
+				return this.api.scripting.executeScript(...args)
+		}
+	}
+}
 
 class App {
   constructor() {
@@ -21,6 +44,7 @@ class App {
       url: null,
     }
     this.settings = {}
+    this.ext = new ExtensionAPI
 
     /* Main pane */
 
@@ -129,7 +153,7 @@ class App {
     this.data.url = url
     this.data.title = tab.title.trim()
 
-    tryGetSelectionFromTab((results) => {
+    const afterSelect = (results) => {
       if (results.length !== 0) {
         // console.log('results', results);
         const text = results[0].result.trim()
@@ -138,7 +162,13 @@ class App {
         }
       }
       self.render();
-    });
+    };
+
+	try {
+		this.executeScript({ code: 'window.getSelection().toString()' }).then(afterSelect);
+	} catch {
+		afterSelect([]);
+	}
   }
 
   render() {
@@ -209,7 +239,7 @@ class App {
 
   loadSettings() {
     const self = this
-    return EXTAPI.storage.sync.get(['settings']).then((data) => {
+    return this.ext.storage.sync.get(['settings']).then((data) => {
       console.log('loadSettings', data)
       if (data.settings) {
         self.settings = data.settings
@@ -226,7 +256,7 @@ class App {
     }
     console.log('save settings', this.settings)
 
-    return EXTAPI.storage.sync.set({
+    return this.ext.storage.sync.set({
       settings: this.settings,
     })
   }
@@ -238,34 +268,13 @@ class App {
 const app = new App()
 
 app.loadSettings().then(() => {
-  EXTAPI.tabs.query({active: true, currentWindow: true}).then(tabs => {
+  app.ext.tabs.query({active: true, currentWindow: true}).then(tabs => {
     app.handleTab(tabs[0])
   })
 })
 
 
 /* Functions */
-
-const getSelectionFromTab = function(then) {
-  let api;
-  switch (EXTENSION_API) {
-    case 'chrome':
-      api = chrome.scripting;
-      break;
-    case 'webext':
-      api = EXTAPI.tabs;
-      break;
-  }
-  api.executeScript({ code: 'window.getSelection().toString()' }).then(then)
-}
-
-const tryGetSelectionFromTab = function(then) {
-  try {
-    getSelectionFromTab(then)
-  } catch {
-    then([])
-  }
-}
 
 const wrapMarkForEl = function(el) {
   const mark = document.createElement("div");
