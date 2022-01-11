@@ -127,15 +127,24 @@ class App {
     }
 
     if (canGetSelection) {
-      // promise
+      // MV3
+      /*
       chrome.scripting.executeScript(
         {
           target: {tabId: tab.id},
           func: getSelection,
         },
+      */
+      chrome.tabs.executeScript(
+        tab.id,
+        {
+          code: 'window.getSelection().toString()',
+        },
         (results) => {
-          // console.log('results', results);
-          const text = results[0].result.trim()
+          console.log('results', results);
+          // MV3: results item is object
+          // const text = results[0].result.trim()
+          const text = results[0].trim()
           if (text) {
             self.data.title = text;
           }
@@ -213,15 +222,19 @@ class App {
     }
   }
 
-  loadSettings() {
+  loadSettings(callback) {
     const self = this
-    return chrome.storage.sync.get(['settings']).then((data) => {
+    // MV3: promise
+    // return chrome.storage.sync.get(['settings']).then((data) => {
+    return chrome.storage.sync.get(['settings'], (data) => {
       console.log('loadSettings', data)
       if (data.settings) {
         self.settings = data.settings
       }
       self.renderFormat()
       self.renderSettings()
+
+      callback()
     })
   }
 
@@ -243,8 +256,12 @@ class App {
 
 const app = new App()
 
-app.loadSettings().then(() => {
-  chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+// MV3: promise
+// app.loadSettings().then(() => {
+app.loadSettings(() => {
+  // MV3: promise
+  // chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     const tab = tabs[0];
     app.handleTab(tab)
   });
