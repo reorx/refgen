@@ -15,3 +15,5 @@ Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ce
   - reStructuredText
   - MediaWiki
   - HTML
+- [ ] Selection text only (for getting text from websites that have copy restrictions)
+- [ ] Click to copy immediately
