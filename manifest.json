@@ -9,17 +9,14 @@
     "48": "logo-947.png",
     "128": "logo-947.png"
   },
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_popup": "popup.html"
   },
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Ctrl+K",
-        "mac": "Command+K"
+        "default": "Ctrl+U",
+        "mac": "Command+U"
       }
     }
   },
