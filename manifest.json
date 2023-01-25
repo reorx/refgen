@@ -15,8 +15,8 @@
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Alt+K",
-        "mac": "Command+K"
+        "default": "Alt+U",
+        "mac": "Command+U"
       }
     }
   },
