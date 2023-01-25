@@ -15,7 +15,10 @@ Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ce
   - reStructuredText
   - MediaWiki
   - HTML
+- [ ] show canonical url and allow using it
+- [ ] show parameters list, uncheck and remember
 - [ ] title text normalize (add \ before _ and * etc.)
+- [ ] title text remove \n
 - [ ] Selection text only (for getting text from websites that have copy restrictions)
 - [ ] Click to copy immediately
 - [ ] purge URL (manually and auto)

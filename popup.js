@@ -1,7 +1,10 @@
 const QS = document.querySelector.bind(document)
 const QSA = document.querySelectorAll.bind(document)
 const S_KEY = {
+  // global settings
   defaultFormat: "defaultFormat",
+  // site settings
+  alwaysUseCanonicalUrl: "alwaysUseCanonicalUrl",
 }
 
 
@@ -12,8 +15,11 @@ class App {
     this.data = {
       title: null,
       url: null,
+      canonicalUrl: null,
     }
+    this.domain = null
     this.settings = {}
+    this.siteSettingsMap = {}
 
     /* Main pane */
 
@@ -33,6 +39,18 @@ class App {
     });
 
     /* Action pane */
+
+    this.elCanonicalUrl = QS('#d-canonical-url')
+
+    this.elCanonicalUrlBtn = QS('#f-canonical-url')
+    this.elCanonicalUrlBtn.addEventListener('click', () => {
+      this.renderUrl(this.data.canonicalUrl)
+    })
+    this.elCanonicalUrlCheckbox = QS('#f-canonical-url-always')
+    this.elCanonicalUrlCheckbox.addEventListener('change', () => {
+      console.log('elCanonicalUrlCheckbox change')
+      this.updateSiteSettings(S_KEY.alwaysUseCanonicalUrl, this.elCanonicalUrlCheckbox.checked)
+    })
 
     this.elFormat = QS('#d-format')
     this.elFormat.addEventListener('change', () => {
@@ -117,28 +135,37 @@ class App {
     if (url.startsWith('chrome')) {
       return;
     }
+
     const self = this
+    this.domain = new URL(url).hostname
     this.data.url = url
     this.data.title = tab.title.trim()
 
-    let canGetSelection = true;
+    let canExecuteScript = true;
     if (url.startsWith('https://chrome.google.com/webstore')) {
-      canGetSelection = false;
+      canExecuteScript = false;
     }
 
-    if (canGetSelection) {
+    if (canExecuteScript) {
       // promise
       chrome.scripting.executeScript(
         {
           target: {tabId: tab.id},
-          func: getSelection,
+          func: executeInTab,
         },
         (results) => {
-          // console.log('results', results);
-          const text = results[0].result.trim()
+          console.log('results', results);
+          const data = results[0].result
+
+          // selection
+          const text = data.selection.trim()
           if (text) {
             self.data.title = text;
           }
+
+          // canonical url
+          if (data.canonicalUrl)
+            self.data.canonicalUrl = data.canonicalUrl
 
           self.render();
         });
@@ -148,16 +175,65 @@ class App {
   }
 
   render() {
-    this.renderContent()
+    this.renderData()
+    this.renderSettings()
     this.renderPreview()
   }
 
-  renderContent() {
+  renderUrl(url) {
     const formatter = this.getFormatter()
-    const text = formatter.renderLink(this.data.title, this.data.url)
+    const text = formatter.renderLink(this.data.title, url)
     this.elContent.value = text;
     this.elContent.select();
   }
+
+  renderData() {
+    const site = this.getSiteSettings()
+
+    // url
+    let url = this.data.url
+    if (site[S_KEY.alwaysUseCanonicalUrl])
+      url = this.data.canonicalUrl
+    this.renderUrl(url)
+
+    // cannonical url
+    const canonicalUrl = this.data.canonicalUrl
+    if (canonicalUrl) {
+      this.elCanonicalUrl.innerHTML = canonicalUrl
+      this.elCanonicalUrl.classList.remove('muted-text')
+      this.elCanonicalUrlBtn.disabled = false
+    } else {
+      this.elCanonicalUrl.innerHTML = 'No Canonical URl'
+      this.elCanonicalUrl.classList.add('muted-text')
+      this.elCanonicalUrlBtn.disabled = true
+    }
+    this.elCanonicalUrlCheckbox.checked = site[S_KEY.alwaysUseCanonicalUrl] || false
+
+    // format
+    const v = this.settings[S_KEY.defaultFormat]
+    if (v) {
+      this.elFormat.value = v
+    }
+  }
+
+  renderPreview() {
+    const link = this.createLinkFromContent()
+
+    if (link) {
+      this.elPreview.innerHTML = link.outerHTML
+    } else {
+      this.elPreview.innerHTML = '<span class="error">Invaild link</span>'
+    }
+  }
+
+  renderSettings() {
+    const defaultFormat = this.settings[S_KEY.defaultFormat]
+    if (defaultFormat) {
+      QS('input[name="default-format"][value="' + defaultFormat + '"]').checked = true
+    }
+  }
+
+  /* Actions */
 
   copyContent() {
     this.elContent.select();
@@ -189,39 +265,16 @@ class App {
     }
   }
 
-  renderPreview() {
-    const link = this.createLinkFromContent()
-
-    if (link) {
-      this.elPreview.innerHTML = link.outerHTML
-    } else {
-      this.elPreview.innerHTML = '<span class="error">Invaild link</span>'
-    }
-  }
-
-  renderFormat() {
-    const v = this.settings[S_KEY.defaultFormat]
-    if (v) {
-      this.elFormat.value = v
-    }
-  }
-
-  renderSettings() {
-    const defaultFormat = this.settings[S_KEY.defaultFormat]
-    if (defaultFormat) {
-      QS('input[name="default-format"][value="' + defaultFormat + '"]').checked = true
-    }
-  }
+  /* Storage */
 
   loadSettings() {
     const self = this
-    return chrome.storage.sync.get(['settings']).then((data) => {
-      console.log('loadSettings', data)
-      if (data.settings) {
+    return chrome.storage.sync.get(['settings', 'siteSettingsMap']).then((data) => {
+      console.log('loadSettings', JSON.stringify(data))
+      if (data.settings)
         self.settings = data.settings
-      }
-      self.renderFormat()
-      self.renderSettings()
+      if (data.siteSettingsMap)
+        self.siteSettingsMap = data.siteSettingsMap
     })
   }
 
@@ -234,6 +287,25 @@ class App {
 
     return chrome.storage.sync.set({
       settings: this.settings,
+    })
+  }
+
+  getSiteSettings() {
+    let siteSettings = this.siteSettingsMap[this.domain]
+    if (!siteSettings) {
+      siteSettings = {}
+      this.siteSettingsMap[this.domain] = siteSettings
+    }
+    return siteSettings
+  }
+
+  updateSiteSettings(k, v) {
+    const siteSettings = this.getSiteSettings()
+    siteSettings[k] = v
+    // console.log('updateSiteSettings', this.siteSettingsMap)
+
+    return chrome.storage.sync.set({
+      siteSettingsMap: this.siteSettingsMap,
     })
   }
 }
@@ -253,9 +325,17 @@ app.loadSettings().then(() => {
 
 /* Functions */
 
-const getSelection = function() {
-  const sel = window.getSelection().toString();
-  return sel;
+const executeInTab = function() {
+  const data = {}
+
+  // get selection
+  data.selection = window.getSelection().toString();
+
+  // get canonical url
+  const canonicalLink = document.querySelector('link[rel="canonical"]')
+  if (canonicalLink)
+    data.canonicalUrl = canonicalLink.href;
+  return data
 }
 
 const wrapMarkForEl = function(el) {

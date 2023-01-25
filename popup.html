@@ -10,9 +10,25 @@
       resize: none;
     }
 
-    #action-pane {
-      display: flex;
+    #action-pane section {
       padding: 5px 0 8px;
+    }
+
+    #section-canonical-url {
+    }
+    #section-canonical-url .content {
+      display: flex;
+      align-items: center;
+    }
+    #section-canonical-url .content > .left {
+      flex-grow: 1;
+      border-right: 1px solid #aaa;
+      padding-left: 5px;
+      margin-right: 5px;
+    }
+
+    #section-format {
+      display: flex;
     }
 
     select,
@@ -69,24 +85,44 @@
     .error {
       color: #a00;
     }
+    .muted-text {
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
   <textarea id="d-content" name="" cols="40" rows="10" spellcheck="false"></textarea>
 
   <div id="action-pane">
-    <select id="d-format" name="format">
-      <option value="markdown">Markdown</option>
-      <option value="asciidoc">AsciiDoc</option>
-      <option value="rst">reStructuredText</option>
-      <option value="mediawiki">MediaWiki</option>
-      <option value="html">HTML</option>
-    </select>
+    <section id="section-canonical-url">
+      <div class="section-title">Canonical URL:</div>
+      <div class="content">
+        <div id="d-canonical-url" class="left muted-text">No Canonical URL</div>
+        <div class="right">
+          <button id="f-canonical-url" disabled>Replace</button>
+          <div>
+            <input type="checkbox" id="f-canonical-url-always" checked/>
+            <label for="f-canonical-url-always">Always</label>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <button id="f-copy">Copy</button>
-    <button id="f-copy-html">Copy as HTML</button>
-    <div id="f-settings" title="Open settings pane">⚙</div>
+    <section id="section-format">
+      <select id="d-format" name="format">
+        <option value="markdown">Markdown</option>
+        <option value="asciidoc">AsciiDoc</option>
+        <option value="rst">reStructuredText</option>
+        <option value="mediawiki">MediaWiki</option>
+        <option value="html">HTML</option>
+      </select>
+
+      <button id="f-copy">Copy</button>
+      <button id="f-copy-html">Copy as HTML</button>
+      <div id="f-settings" title="Open settings pane">⚙</div>
+    </section>
   </div>
+
 
   <div id="settings-pane">
       <div class="name">Default Format:</div>
