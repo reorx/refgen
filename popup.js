@@ -5,6 +5,7 @@ const S_KEY = {
   defaultFormat: "defaultFormat",
   // site settings
   alwaysUseCanonicalUrl: "alwaysUseCanonicalUrl",
+  urlParams: "urlParams",
 }
 
 
@@ -16,6 +17,7 @@ class App {
       title: null,
       url: null,
       canonicalUrl: null,
+      displayUrl: null,
     }
     this.domain = null
     this.settings = {}
@@ -44,13 +46,16 @@ class App {
 
     this.elCanonicalUrlBtn = QS('#f-canonical-url')
     this.elCanonicalUrlBtn.addEventListener('click', () => {
-      this.renderUrl(this.data.canonicalUrl)
+      this.data.displayUrl = this.data.canonicalUrl
+      this.renderUrl()
     })
     this.elCanonicalUrlCheckbox = QS('#f-canonical-url-always')
     this.elCanonicalUrlCheckbox.addEventListener('change', () => {
       console.log('elCanonicalUrlCheckbox change')
       this.updateSiteSettings(S_KEY.alwaysUseCanonicalUrl, this.elCanonicalUrlCheckbox.checked)
     })
+
+    this.elParamsContent = QS('#section-params .content')
 
     this.elFormat = QS('#d-format')
     this.elFormat.addEventListener('change', () => {
@@ -180,7 +185,17 @@ class App {
     this.renderPreview()
   }
 
-  renderUrl(url) {
+  renderUrl() {
+    const site = this.getSiteSettings()
+
+    let url = this.data.displayUrl
+    if (!url) {
+      url = this.data.url
+      if (site[S_KEY.alwaysUseCanonicalUrl])
+        url = this.data.canonicalUrl
+    }
+    url = this.cleanUrlParams(url)
+
     const formatter = this.getFormatter()
     const text = formatter.renderLink(this.data.title, url)
     this.elContent.value = text;
@@ -191,10 +206,7 @@ class App {
     const site = this.getSiteSettings()
 
     // url
-    let url = this.data.url
-    if (site[S_KEY.alwaysUseCanonicalUrl])
-      url = this.data.canonicalUrl
-    this.renderUrl(url)
+    this.renderUrl()
 
     // cannonical url
     const canonicalUrl = this.data.canonicalUrl
@@ -208,6 +220,36 @@ class App {
       this.elCanonicalUrlBtn.disabled = true
     }
     this.elCanonicalUrlCheckbox.checked = site[S_KEY.alwaysUseCanonicalUrl] || false
+
+    // url params
+    const parsedUrl = new URL(this.data.url)
+    const params = parsedUrl.searchParams
+    const siteUrlParams = site[S_KEY.urlParams] || {}
+    for (const [key, value] of params) {
+      const div = createElement('div', 'url-param')
+      const elId = `url-param-${key}`
+      // create checkbox input for each key value pair
+      const el = document.createElement('input')
+      el.type = 'checkbox'
+      el.name = key
+      el.value = value
+      el.id = elId
+      el.checked = siteUrlParams[key] || false
+      el.addEventListener('change', (e) => {
+        siteUrlParams[e.target.name] = e.target.checked
+        this.updateSiteSettings(S_KEY.urlParams, siteUrlParams)
+        this.renderUrl()
+      })
+      div.appendChild(el)
+      div.appendChild(
+        createElement('label', '', key, {
+          'for': elId
+        })
+      )
+
+      // append div to this.elParamsContent
+      this.elParamsContent.appendChild(div)
+    }
 
     // format
     const v = this.settings[S_KEY.defaultFormat]
@@ -234,6 +276,21 @@ class App {
   }
 
   /* Actions */
+
+  cleanUrlParams(url) {
+    const parsedUrl = new URL(url)
+    const params = parsedUrl.searchParams
+    const siteUrlParams = this.getSiteSettings()[S_KEY.urlParams]
+    console.log('cleanUrlParams', params, siteUrlParams)
+    if (siteUrlParams) {
+      for (const key of Object.keys(siteUrlParams)) {
+        if (siteUrlParams[key] && params.has(key)) {
+          params.delete(key)
+        }
+      }
+    }
+    return parsedUrl.toString()
+  }
 
   copyContent() {
     this.elContent.select();
@@ -336,6 +393,20 @@ const executeInTab = function() {
   if (canonicalLink)
     data.canonicalUrl = canonicalLink.href;
   return data
+}
+
+const createElement = function(tagName, className, text, attrs) {
+  const el = document.createElement(tagName)
+  if (className)
+    el.className = className
+  if (text)
+    el.textContent = text
+  if (attrs) {
+    for (const key in attrs) {
+      el.setAttribute(key, attrs[key])
+    }
+  }
+  return el
 }
 
 const wrapMarkForEl = function(el) {

@@ -15,8 +15,8 @@ Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ce
   - reStructuredText
   - MediaWiki
   - HTML
-- [ ] show canonical url and allow using it
-- [ ] show parameters list, uncheck and remember
+- [x] show canonical url and allow using it
+- [x] show parameters list, check the ones that need to be removed and remember
 - [ ] title text normalize (add \ before _ and * etc.)
 - [ ] title text remove \n
 - [ ] Selection text only (for getting text from websites that have copy restrictions)

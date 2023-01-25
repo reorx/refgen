@@ -14,8 +14,26 @@
       padding: 5px 0 8px;
     }
 
-    #section-canonical-url {
+    section .title {
+      position: relative;
+      margin-bottom: 8px;
     }
+    section .title span {
+      display: inline-block;
+      padding-right: 8px;
+      background-color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+    section .title::after {
+      content: "";
+      display: block;
+      height: 1px;
+      background-color: #aaa;
+      position: relative;
+      bottom: 8px;
+    }
+
     #section-canonical-url .content {
       display: flex;
       align-items: center;
@@ -27,7 +45,7 @@
       margin-right: 5px;
     }
 
-    #section-format {
+    #section-format .content {
       display: flex;
     }
 
@@ -69,8 +87,9 @@
     }
 
     #preview-pane {
-      border-top: 1px solid #aaa;
+      margin-top: 8px;
       padding: 8px 0 3px;
+      background: #eee;
     }
     #preview-pane a:visited,
     #preview-pane a {
@@ -95,7 +114,7 @@
 
   <div id="action-pane">
     <section id="section-canonical-url">
-      <div class="section-title">Canonical URL:</div>
+      <div class="title"><span>Canonical URL:</span></div>
       <div class="content">
         <div id="d-canonical-url" class="left muted-text">No Canonical URL</div>
         <div class="right">
@@ -108,18 +127,27 @@
       </div>
     </section>
 
-    <section id="section-format">
-      <select id="d-format" name="format">
-        <option value="markdown">Markdown</option>
-        <option value="asciidoc">AsciiDoc</option>
-        <option value="rst">reStructuredText</option>
-        <option value="mediawiki">MediaWiki</option>
-        <option value="html">HTML</option>
-      </select>
+    <section id="section-params">
+      <div class="title"><span>Clean Parameters:</span></div>
+      <div class="content">
+      </div>
+    </section>
 
-      <button id="f-copy">Copy</button>
-      <button id="f-copy-html">Copy as HTML</button>
-      <div id="f-settings" title="Open settings pane">⚙</div>
+    <section id="section-format">
+      <div class="title"><span>Formatter:</span></div>
+      <div class="content">
+        <select id="d-format" name="format">
+          <option value="markdown">Markdown</option>
+          <option value="asciidoc">AsciiDoc</option>
+          <option value="rst">reStructuredText</option>
+          <option value="mediawiki">MediaWiki</option>
+          <option value="html">HTML</option>
+        </select>
+
+        <button id="f-copy">Copy</button>
+        <button id="f-copy-html">Copy as HTML</button>
+        <div id="f-settings" title="Open settings pane">⚙</div>
+      </div>
     </section>
   </div>
 
