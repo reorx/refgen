@@ -7,7 +7,20 @@
     textarea {
       padding: 5px;
       font-size: 13px;
-      resize: none;
+      resize: vertical;
+      height: 100px;
+      min-height: 100px;
+      max-height: 300px;
+    }
+    /*
+    label {
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    */
+    .input-group {
+      display: flex;
+      align-items: center;
     }
 
     #action-pane section {
@@ -24,6 +37,7 @@
       background-color: #fff;
       position: relative;
       z-index: 1;
+      cursor: help;
     }
     section .title::after {
       content: "";
@@ -41,16 +55,23 @@
     #section-canonical-url .content > .left {
       flex-grow: 1;
       border-right: 1px solid #aaa;
-      padding-left: 5px;
       margin-right: 5px;
+    }
+    #section-canonical-url #f-canonical-url {
+      margin-bottom: 5px;
+    }
+
+    #section-params .content {
+      max-height: 300px;
+      overflow-y: auto;
     }
 
     #section-format .content {
       display: flex;
     }
 
-    select,
-    button {
+    #section-format select,
+    #section-format button {
       margin-right: .5em;
     }
 
@@ -86,9 +107,17 @@
       font-weight: bold;
     }
 
+    #section-preview {
+      margin: 8px 0 0;
+    }
+    #section-preview figcaption {
+      font-size: .85em;
+      color: #888;
+    }
+
     #preview-pane {
       margin-top: 8px;
-      padding: 8px 0 3px;
+      padding: 8px;
       background: #eee;
     }
     #preview-pane a:visited,
@@ -114,27 +143,27 @@
 
   <div id="action-pane">
     <section id="section-canonical-url">
-      <div class="title"><span>Canonical URL:</span></div>
+      <div class="title"><span title="Canonical URL is retrieved from the <link rel=canonical> tag and is seen as the most representative URL among the duplications.">Canonical URL:</span></div>
       <div class="content">
         <div id="d-canonical-url" class="left muted-text">No Canonical URL</div>
         <div class="right">
           <button id="f-canonical-url" disabled>Replace</button>
-          <div>
+          <div class="input-group">
             <input type="checkbox" id="f-canonical-url-always" checked/>
-            <label for="f-canonical-url-always">Always</label>
+            <label for="f-canonical-url-always" title="Always use canonical url for this site">Always</label>
           </div>
         </div>
       </div>
     </section>
 
     <section id="section-params">
-      <div class="title"><span>Clean Parameters:</span></div>
+      <div class="title"><span title="Parameters checked below will be removed from the URL in the future for the site.">Clean Parameters:</span></div>
       <div class="content">
       </div>
     </section>
 
     <section id="section-format">
-      <div class="title"><span>Formatter:</span></div>
+      <div class="title"><span title="You can choose various formatters to generate the link reference from below.">Formatter:</span></div>
       <div class="content">
         <select id="d-format" name="format">
           <option value="markdown">Markdown</option>
@@ -173,7 +202,10 @@
       </div>
   </div>
 
-  <div id="preview-pane"></div>
+  <figure id="section-preview">
+    <div id="preview-pane"></div>
+    <figcaption>HTML Preview</figcaption>
+  </figure>
 
   <!-- Don't know why, but this div can prevent copied html starts with a LF -->
   <div></div>

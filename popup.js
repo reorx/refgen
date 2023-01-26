@@ -226,7 +226,7 @@ class App {
     const params = parsedUrl.searchParams
     const siteUrlParams = site[S_KEY.urlParams] || {}
     for (const [key, value] of params) {
-      const div = createElement('div', 'url-param')
+      const div = createElement('div', 'input-group')
       const elId = `url-param-${key}`
       // create checkbox input for each key value pair
       const el = document.createElement('input')
