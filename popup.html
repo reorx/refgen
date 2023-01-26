@@ -41,7 +41,7 @@
       display: flex;
       flex-direction: column;
     }
-    textarea {
+    #content-pane textarea {
       padding: 5px;
       font-size: 13px;
       resize: vertical;
@@ -122,20 +122,23 @@
     }
 
     #settings-pane {
-      display: none;
-      border-top: 1px solid #aaa;
-      padding: 8px 0 8px;
+      padding: 8px;
+      margin: 8px;
+      border: 1px solid #ddd;
     }
     .radios {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
     }
-    .radios input[type=radio] {
-      position: relative;
-      top: 2px;
+    .radio-item {
+      display: flex;
+      align-items: center;
     }
-    .radios label {
+    .radio-item input[type=radio] {
+      margin-bottom: 3px;
+    }
+    .radio-item label {
       font-size: 12px;
     }
     #settings-pane .name {
@@ -232,7 +235,7 @@
   </div>
 
 
-  <div id="settings-pane">
+  <div id="settings-pane" style="display: none;">
       <div class="name">Default Format:</div>
       <div class="radios">
         <div class="radio-item">
