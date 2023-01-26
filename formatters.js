@@ -1,6 +1,9 @@
 class MarkdownFormatter {
   renderLink(title, url) {
-    return `[${title}](${url})`
+    // escape special characters in title: \`*_#+-{}[]()
+    const escapedTitle = title.replace(/([\\`*_#\{\}\[\]\(\)])/g, '\\$1');
+
+    return `[${escapedTitle}](${url})`
   }
 
   parseLink(text) {
