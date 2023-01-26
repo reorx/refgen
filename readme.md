@@ -2,6 +2,8 @@
 
 An extension to generate markdown style link reference for current page.
 
+**🚀 New feature in 2023: clean URL tracking parameters and remember the preference for the site.**
+
 Get it on [Chrome Web Store](https://chrome.google.com/webstore/detail/refgen/ceknnceiglebkdhimphmkbgjbbcnhiib)
 
 ![](screenshot.png)
