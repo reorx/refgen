@@ -82,10 +82,4 @@ class HTMLFormatter {
   renderLink(title, url) {
     return `<a href="${url}">${title}</a>`
   }
-
-  createLink(text) {
-    const div = document.createElement('div')
-    div.innerHTML = text
-    return div.firstChild
-  }
 }

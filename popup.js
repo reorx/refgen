@@ -209,18 +209,9 @@ class App {
   }
 
   renderRef() {
-    const site = this.getSiteSettings()
-
-    let url = this.data.displayUrl
-    if (!url) {
-      url = this.data.url
-      if (site[S_KEY.alwaysUseCanonicalUrl] && this.data.canonicalUrl)
-        url = this.data.canonicalUrl
-    }
-    url = this.cleanUrlParams(url)
 
     const formatter = this.getFormatter()
-    const text = formatter.renderLink(this.data.title, url)
+    const text = formatter.renderLink(this.data.title, this.getRefUrl())
     this.elRef.value = text;
   }
 
@@ -294,7 +285,7 @@ class App {
   }
 
   renderPreview() {
-    const link = this.createLinkFromContent()
+    const link = this.createLinkElement()
 
     if (link) {
       this.elPreview.innerHTML = link.outerHTML
@@ -327,13 +318,26 @@ class App {
     return parsedUrl.toString()
   }
 
+  getRefUrl() {
+    const site = this.getSiteSettings()
+
+    let url = this.data.displayUrl
+    if (!url) {
+      url = this.data.url
+      if (site[S_KEY.alwaysUseCanonicalUrl] && this.data.canonicalUrl)
+        url = this.data.canonicalUrl
+    }
+    url = this.cleanUrlParams(url)
+    return url
+  }
+
   copyContent() {
     this.elRef.select();
     document.execCommand('copy');
   }
 
   copyContentAsHTML() {
-    const link = this.createLinkFromContent()
+    const link = this.createLinkElement()
     if (!link) {
       return
     }
@@ -342,19 +346,8 @@ class App {
     copyEl(mark);
   }
 
-  createLinkFromContent() {
-    const text = this.elRef.value
-    const format = this.getFormat()
-    const formatter = this.getFormatter()
-    if (format === 'html') {
-      return formatter.createLink(text)
-    } else {
-      const matched = formatter.parseLink(text)
-      // console.log('createLinkFromContent', text, matched)
-      if (matched) {
-        return createLink(matched.title, matched.url)
-      }
-    }
+  createLinkElement() {
+    return createLink(this.data.title, this.getRefUrl())
   }
 
   /* Storage */
