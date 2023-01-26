@@ -1,5 +1,6 @@
 const QS = document.querySelector.bind(document)
 const QSA = document.querySelectorAll.bind(document)
+const STORAGE_KEYS = ['settings', 'siteSettingsMap']
 const S_KEY = {
   // global settings
   defaultFormat: "defaultFormat",
@@ -360,7 +361,7 @@ class App {
 
   loadSettings() {
     const self = this
-    return chrome.storage.sync.get(['settings', 'siteSettingsMap']).then((data) => {
+    return chrome.storage.sync.get(STORAGE_KEYS).then((data) => {
       console.log('loadSettings', JSON.stringify(data))
       if (data.settings)
         self.settings = data.settings

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Refgen Options</title>
+  <style>
+    body {
+      width: 400px;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      height: 400px;
+      max-height: 500px;
+      resize: vertical;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+    .input-group {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+    }
+    .input-group > * {
+      margin-right: 8px;
+    }
+
+    #import-message {
+      margin: 8px 0;
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    #import-message.error {
+      color: red;
+      border-color: red;
+    }
+    #import-message.success {
+      color: green;
+      border-color: green;
+    }
+  </style>
+</head>
+<body>
+  <h2>Settings JSON</h2>
+  <div class="content">
+    <textarea readonly></textarea>
+  </div>
+
+  <div class="input-group">
+    <button id="f-export">Export</button>
+  </div>
+  <div class="input-group">
+    <input type="file" name="import-file" accept=".json" />
+    <button id="f-import">Import</button>
+  </div>
+  <div id="import-message">Import message</div>
+
+  <script src="options.js"></script>
+</body>
+</html>
