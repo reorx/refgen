@@ -5,7 +5,7 @@ const S_KEY = {
   // global settings
   defaultFormat: "defaultFormat",
   // site settings
-  alwaysUseCanonicalUrl: "alwaysUseCanonicalUrl",
+  alwaysUseCanonicalUrl: "canonicalUrl",
   urlParams: "urlParams",
 }
 
