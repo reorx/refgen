@@ -186,9 +186,9 @@ class App {
           const data = results[0].result
 
           // selection
-          const text = data.selection.trim()
-          if (text) {
-            self.data.title = text;
+          const title = normalizeTitle(data.selection)
+          if (title) {
+            self.data.title = title;
           }
 
           // canonical url
@@ -428,6 +428,10 @@ const executeInTab = function() {
   if (canonicalLink)
     data.canonicalUrl = canonicalLink.href;
   return data
+}
+
+const normalizeTitle = function(title) {
+  return title.replace(/\n/g, ' ').trim()
 }
 
 const createElement = function(tagName, className, text, attrs) {
