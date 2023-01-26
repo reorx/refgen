@@ -58,7 +58,7 @@ class App {
     this.elTitle.addEventListener('keydown', selectRefOnEnter)
     this.elUrl = QS('#d-url')
     this.elUrl.addEventListener('input', () => {
-      this.data.url = this.elUrl.value
+      this.data.displayUrl = this.elUrl.value
       this.renderRef()
     })
     this.elUrl.addEventListener('keydown', selectRefOnEnter)
@@ -209,10 +209,11 @@ class App {
   }
 
   renderRef() {
-
     const formatter = this.getFormatter()
-    const text = formatter.renderLink(this.data.title, this.getRefUrl())
-    this.elRef.value = text;
+    const refUrl = this.getRefUrl()
+    const text = formatter.renderLink(this.data.title, refUrl)
+    this.elRef.value = text
+    this.elUrl.value = refUrl
   }
 
   renderData() {
@@ -224,9 +225,6 @@ class App {
 
     // title
     this.elTitle.value = this.data.title
-
-    // url
-    this.elUrl.value = this.data.url
 
     // cannonical url
     const canonicalUrl = this.data.canonicalUrl
