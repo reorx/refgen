@@ -34,6 +34,11 @@ class App {
         this.copyRefAsHTML()
         this.elCopyHTMLBtn.focus()
         return
+      } else if (e.ctrlKey && e.metaKey && e.key === "u") {
+        console.log('key combo: ctrl+meta+l')
+        this.copyURL()
+        this.elCopyURLBtn.focus()
+        return
       }
     });
     this.elRef.addEventListener("keyup", () => {
