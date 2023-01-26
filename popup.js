@@ -31,7 +31,7 @@ class App {
       console.log('keydown')
       if (e.ctrlKey && e.metaKey && e.key === "c") {
         console.log('key combo: ctrl+meta+c')
-        this.copyContentAsHTML()
+        this.copyRefAsHTML()
         this.elCopyHTMLBtn.focus()
         return
       }
@@ -54,6 +54,7 @@ class App {
     this.elTitle.addEventListener('input', () => {
       this.data.title = this.elTitle.value
       this.renderRef()
+      this.renderPreview()
     })
     this.elTitle.addEventListener('keydown', selectRefOnEnter)
     this.elUrl = QS('#d-url')
@@ -87,12 +88,17 @@ class App {
 
     this.elCopyBtn = QS('#f-copy')
     this.elCopyBtn.addEventListener('click', () => {
-      this.copyContent()
+      this.copyRef()
     });
 
     this.elCopyHTMLBtn = QS("#f-copy-html")
     this.elCopyHTMLBtn.addEventListener('click', () => {
-      this.copyContentAsHTML()
+      this.copyRefAsHTML()
+    });
+
+    this.elCopyURLBtn = QS("#f-copy-url")
+    this.elCopyURLBtn.addEventListener('click', () => {
+      this.copyURL()
     });
 
     /* Settings pane */
@@ -127,7 +133,7 @@ class App {
 
     /* Preview pane */
 
-    this.elPreview = QS('#preview-pane')
+    this.elPreview = QS('#html-preview')
   }
 
   getDefaultFormat() {
@@ -205,7 +211,6 @@ class App {
   render() {
     this.renderData()
     this.renderSettings()
-    this.renderPreview()
   }
 
   renderRef() {
@@ -221,6 +226,7 @@ class App {
 
     // content
     this.renderRef()
+    this.renderPreview()
     this.elRef.select()
 
     // title
@@ -331,12 +337,17 @@ class App {
     return url
   }
 
-  copyContent() {
+  copyRef() {
     this.elRef.select();
     document.execCommand('copy');
   }
 
-  copyContentAsHTML() {
+  copyURL() {
+    this.elUrl.select()
+    document.execCommand('copy')
+  }
+
+  copyRefAsHTML() {
     const link = this.createLinkElement()
     if (!link) {
       return

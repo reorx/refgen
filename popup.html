@@ -19,6 +19,9 @@
       display: flex;
       align-items: center;
     }
+    .buttons > button {
+      margin-right: 8px;
+    }
 
     #content-pane {
       display: flex;
@@ -114,7 +117,6 @@
       font-size: 22px;
       line-height: 18px;
       margin-left: auto;
-      margin-right: 10px;
       cursor: pointer;
     }
     #f-settings:hover {
@@ -146,20 +148,20 @@
     }
 
     #section-preview {
-      margin: 8px 0 0;
+      margin: 5px 0 0;
     }
     #section-preview figcaption {
       font-size: .85em;
       color: #888;
+      text-align: right;
     }
 
-    #preview-pane {
-      margin-top: 8px;
+    #html-preview {
       padding: 8px;
       background: #eee;
     }
-    #preview-pane a:visited,
-    #preview-pane a {
+    #html-preview a:visited,
+    #html-preview a {
       color: #1a0dab;
     }
 
@@ -193,6 +195,15 @@
       <label for="d-url">URL</label>
       <input type="text" name="url" id="d-url" autocomplete="off">
     </div>
+    <div class="input-group buttons" style="margin-top: 5px;">
+        <button id="f-copy">Copy Ref</button>
+        <button id="f-copy-url">Copy URL</button>
+        <button id="f-copy-html">Copy HTML</button>
+    </div>
+  <figure id="section-preview">
+    <div id="html-preview"></div>
+    <figcaption>HTML Preview</figcaption>
+  </figure>
   </div>
 
   <div id="action-pane">
@@ -227,8 +238,6 @@
           <option value="html">HTML</option>
         </select>
 
-        <button id="f-copy">Copy</button>
-        <button id="f-copy-html">Copy as HTML</button>
         <div id="f-settings" title="Open settings pane">⚙</div>
       </div>
     </section>
@@ -256,10 +265,6 @@
       </div>
   </div>
 
-  <figure id="section-preview">
-    <div id="preview-pane"></div>
-    <figcaption>HTML Preview</figcaption>
-  </figure>
 
   <!-- Don't know why, but this div can prevent copied html starts with a LF -->
   <div></div>
