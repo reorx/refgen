@@ -231,11 +231,13 @@ class App {
     // cannonical url
     const canonicalUrl = this.data.canonicalUrl
     if (canonicalUrl) {
+      QS('#section-canonical-url').style.display = 'block'
       this.elCanonicalUrl.innerHTML = canonicalUrl
       this.elCanonicalUrl.classList.remove('muted-text')
       this.elCanonicalUrlBtn.disabled = false
       this.elCanonicalUrlCheckbox.disabled = false
     } else {
+      QS('#section-canonical-url').style.display = 'none'
       this.elCanonicalUrl.innerHTML = 'No Canonical URL'
       this.elCanonicalUrl.classList.add('muted-text')
       this.elCanonicalUrlBtn.disabled = true
