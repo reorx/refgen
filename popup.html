@@ -4,32 +4,63 @@
   <meta charset="UTF-8">
   <title></title>
   <style>
-    textarea {
-      padding: 5px;
-      font-size: 13px;
-      resize: vertical;
-      height: 100px;
-      min-height: 100px;
-      max-height: 300px;
+    html {
+      padding: 0;
+      margin: 0;
     }
-    /*
-    label {
-      vertical-align: top;
-      line-height: 1.5;
+    body {
+      color: #333;
+      font-size: 12px;
+      margin: 0;
+      padding: 6px 10px 10px;
+      width: 430px;
     }
-    */
     .input-group {
       display: flex;
       align-items: center;
     }
 
-    #action-pane section {
+    #content-pane {
+      display: flex;
+      flex-direction: column;
+    }
+    #content-pane .input-group {
+      margin-bottom: 5px;
+    }
+    #content-pane .input-group label {
+      width: 40px;
+      text-align: right;
+      margin-right: 5px;
+    }
+    #content-pane .input-group input {
+      padding: 2px 3px;
+      flex-grow: 1;
+      font-size: 11px;
+    }
+    #content-pane .content {
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      padding: 5px;
+      font-size: 13px;
+      resize: vertical;
+      display: block;
+      height: 100px;
+      min-height: 100px;
+      max-height: 300px;
+    }
+
+    section {
       padding: 5px 0 8px;
     }
 
     section .title {
       position: relative;
       margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 13px;
+      color: #000;
     }
     section .title span {
       display: inline-block;
@@ -55,7 +86,11 @@
     #section-canonical-url .content > .left {
       flex-grow: 1;
       border-right: 1px solid #aaa;
-      margin-right: 5px;
+      margin-right: 8px;
+      padding-right: 5px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 11px;
     }
     #section-canonical-url #f-canonical-url {
       margin-bottom: 5px;
@@ -139,7 +174,23 @@
   </style>
 </head>
 <body>
-  <textarea id="d-content" name="" cols="40" rows="10" spellcheck="false"></textarea>
+  <div id="content-pane">
+    <section>
+      <div class="title"><span title="Ref is the reference of the link, you can either edit in the textarea, or change Title and URL in the inputs to reflect the generated result. Note that if you press enter in the Title and URL inputs, it will focus back to the textarea.">Ref:</span></div>
+      <div class="content">
+        <textarea id="d-ref" name="" cols="40" rows="10" spellcheck="false"></textarea>
+      </div>
+    </section>
+
+    <div class="input-group">
+      <label for="d-title">Title</label>
+      <input type="text" name="title" id="d-title" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label for="d-url">URL</label>
+      <input type="text" name="url" id="d-url" autocomplete="off">
+    </div>
+  </div>
 
   <div id="action-pane">
     <section id="section-canonical-url">
@@ -156,7 +207,7 @@
       </div>
     </section>
 
-    <section id="section-params">
+    <section id="section-params" style="display: none;">
       <div class="title"><span title="Parameters checked below will be removed from the URL in the future for the site.">Clean Parameters:</span></div>
       <div class="content">
       </div>

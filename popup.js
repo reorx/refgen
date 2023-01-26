@@ -23,10 +23,10 @@ class App {
     this.settings = {}
     this.siteSettingsMap = {}
 
-    /* Main pane */
+    /* Content pane */
 
-    this.elContent = QS('#d-content')
-    this.elContent.addEventListener("keydown", (e) => {
+    this.elRef = QS('#d-ref')
+    this.elRef.addEventListener("keydown", (e) => {
       console.log('keydown')
       if (e.ctrlKey && e.metaKey && e.key === "c") {
         console.log('key combo: ctrl+meta+c')
@@ -35,10 +35,32 @@ class App {
         return
       }
     });
-    this.elContent.addEventListener("keyup", () => {
+    this.elRef.addEventListener("keyup", () => {
       console.log('keyup')
       this.renderPreview()
     });
+    this.elRef.addEventListener("focus", () => {
+      this.elRef.select()
+    })
+    const selectRefOnEnter = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        this.elRef.select()
+      }
+    }
+
+    this.elTitle = QS('#d-title')
+    this.elTitle.addEventListener('input', () => {
+      this.data.title = this.elTitle.value
+      this.renderRef()
+    })
+    this.elTitle.addEventListener('keydown', selectRefOnEnter)
+    this.elUrl = QS('#d-url')
+    this.elUrl.addEventListener('input', () => {
+      this.data.url = this.elUrl.value
+      this.renderRef()
+    })
+    this.elUrl.addEventListener('keydown', selectRefOnEnter)
 
     /* Action pane */
 
@@ -47,7 +69,7 @@ class App {
     this.elCanonicalUrlBtn = QS('#f-canonical-url')
     this.elCanonicalUrlBtn.addEventListener('click', () => {
       this.data.displayUrl = this.data.canonicalUrl
-      this.renderUrl()
+      this.renderRef()
     })
     this.elCanonicalUrlCheckbox = QS('#f-canonical-url-always')
     this.elCanonicalUrlCheckbox.addEventListener('change', () => {
@@ -59,7 +81,7 @@ class App {
 
     this.elFormat = QS('#d-format')
     this.elFormat.addEventListener('change', () => {
-      this.render()
+      this.renderRef()
     })
 
     this.elCopyBtn = QS('#f-copy')
@@ -185,28 +207,34 @@ class App {
     this.renderPreview()
   }
 
-  renderUrl() {
+  renderRef() {
     const site = this.getSiteSettings()
 
     let url = this.data.displayUrl
     if (!url) {
       url = this.data.url
-      if (site[S_KEY.alwaysUseCanonicalUrl])
+      if (site[S_KEY.alwaysUseCanonicalUrl] && this.data.canonicalUrl)
         url = this.data.canonicalUrl
     }
     url = this.cleanUrlParams(url)
 
     const formatter = this.getFormatter()
     const text = formatter.renderLink(this.data.title, url)
-    this.elContent.value = text;
-    this.elContent.select();
+    this.elRef.value = text;
   }
 
   renderData() {
     const site = this.getSiteSettings()
 
+    // content
+    this.renderRef()
+    this.elRef.select()
+
+    // title
+    this.elTitle.value = this.data.title
+
     // url
-    this.renderUrl()
+    this.elUrl.value = this.data.url
 
     // cannonical url
     const canonicalUrl = this.data.canonicalUrl
@@ -214,10 +242,12 @@ class App {
       this.elCanonicalUrl.innerHTML = canonicalUrl
       this.elCanonicalUrl.classList.remove('muted-text')
       this.elCanonicalUrlBtn.disabled = false
+      this.elCanonicalUrlCheckbox.disabled = false
     } else {
-      this.elCanonicalUrl.innerHTML = 'No Canonical URl'
+      this.elCanonicalUrl.innerHTML = 'No Canonical URL'
       this.elCanonicalUrl.classList.add('muted-text')
       this.elCanonicalUrlBtn.disabled = true
+      this.elCanonicalUrlCheckbox.disabled = true
     }
     this.elCanonicalUrlCheckbox.checked = site[S_KEY.alwaysUseCanonicalUrl] || false
 
@@ -225,7 +255,9 @@ class App {
     const parsedUrl = new URL(this.data.url)
     const params = parsedUrl.searchParams
     const siteUrlParams = site[S_KEY.urlParams] || {}
+    let hasParams = false
     for (const [key, value] of params) {
+      hasParams = true
       const div = createElement('div', 'input-group')
       const elId = `url-param-${key}`
       // create checkbox input for each key value pair
@@ -238,7 +270,7 @@ class App {
       el.addEventListener('change', (e) => {
         siteUrlParams[e.target.name] = e.target.checked
         this.updateSiteSettings(S_KEY.urlParams, siteUrlParams)
-        this.renderUrl()
+        this.renderRef()
       })
       div.appendChild(el)
       div.appendChild(
@@ -250,6 +282,8 @@ class App {
       // append div to this.elParamsContent
       this.elParamsContent.appendChild(div)
     }
+    if (hasParams)
+      QS('#section-params').style.display = 'block'
 
     // format
     const v = this.settings[S_KEY.defaultFormat]
@@ -293,7 +327,7 @@ class App {
   }
 
   copyContent() {
-    this.elContent.select();
+    this.elRef.select();
     document.execCommand('copy');
   }
 
@@ -308,7 +342,7 @@ class App {
   }
 
   createLinkFromContent() {
-    const text = this.elContent.value
+    const text = this.elRef.value
     const format = this.getFormat()
     const formatter = this.getFormatter()
     if (format === 'html') {
